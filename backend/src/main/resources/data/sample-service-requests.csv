@@ -1,0 +1,4 @@
+external_id,created_date,closed_date,borough,geographic_borough,category,request_type,status,description,street,latitude,longitude,source
+REQ-001,2026-05-01T09:00:00,,Ville-Marie,Ville-Marie,Road Maintenance,Pothole,OPEN,Large pothole reported near the intersection,Rue Sainte-Catherine,45.5017,-73.5673,311
+REQ-002,2026-05-02T11:30:00,2026-05-04T15:00:00,Rosemont,Rosemont,Public Lighting,Streetlight Out,CLOSED,Streetlight not working near residential area,Rue Masson,45.5501,-73.5790,311
+REQ-003,2026-05-03T14:15:00,,Plateau-Mont-Royal,Plateau-Mont-Royal,Cleanliness,Garbage Issue,OPEN,Overflowing public garbage bin near park,Avenue du Mont-Royal,45.5247,-73.5817,311
