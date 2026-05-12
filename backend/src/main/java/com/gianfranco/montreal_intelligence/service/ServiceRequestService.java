@@ -17,11 +17,29 @@ public class ServiceRequestService {
         this.serviceRequestRepository = serviceRequestRepository;
     }
 
-    public Page<ServiceRequest> getRequests(Pageable pageable) {
-        return serviceRequestRepository.findAll(pageable);
+    public Page<ServiceRequest> getRequests(
+            String borough,
+            String status,
+            String category,
+            Pageable pageable
+    ) {
+        return serviceRequestRepository.findWithFilters(
+                cleanFilter(borough),
+                cleanFilter(status),
+                cleanFilter(category),
+                pageable
+        );
     }
 
     public Optional<ServiceRequest> getRequestById(Long id) {
         return serviceRequestRepository.findById(id);
+    }
+
+    private String cleanFilter(String value) {
+        if (value == null || value.isBlank()) {
+            return null;
+        }
+
+        return value;
     }
 }

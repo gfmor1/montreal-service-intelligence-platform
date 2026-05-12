@@ -19,10 +19,18 @@ public class ServiceRequestController {
 
     @GetMapping
     public Page<ServiceRequest> getRequests(
+            @RequestParam(required = false) String borough,
+            @RequestParam(required = false) String status,
+            @RequestParam(required = false) String category,
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "25") int size
     ) {
-        return serviceRequestService.getRequests(PageRequest.of(page, size));
+        return serviceRequestService.getRequests(
+                borough,
+                status,
+                category,
+                PageRequest.of(page, size)
+        );
     }
 
     @GetMapping("/{id}")
