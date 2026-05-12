@@ -1,13 +1,14 @@
 package com.gianfranco.montreal_intelligence.service;
 
+import com.gianfranco.montreal_intelligence.model.ImportRun;
 import com.gianfranco.montreal_intelligence.model.ServiceRequest;
+import com.gianfranco.montreal_intelligence.repository.ImportRunRepository;
 import com.gianfranco.montreal_intelligence.repository.ServiceRequestRepository;
 import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVParser;
 import org.apache.commons.csv.CSVRecord;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.io.InputStreamReader;
 import java.io.Reader;
@@ -18,23 +19,36 @@ import java.time.LocalDateTime;
 public class CsvImportService {
 
     private final ServiceRequestRepository serviceRequestRepository;
+    private final ImportRunRepository importRunRepository;
 
-    public CsvImportService(ServiceRequestRepository serviceRequestRepository) {
+    public CsvImportService(
+            ServiceRequestRepository serviceRequestRepository,
+            ImportRunRepository importRunRepository
+    ) {
         this.serviceRequestRepository = serviceRequestRepository;
+        this.importRunRepository = importRunRepository;
     }
 
-    @Transactional
     public String importSampleData() {
         int processed = 0;
         int inserted = 0;
         int skipped = 0;
+
+        ImportRun importRun = new ImportRun();
+        importRun.setStartedAt(LocalDateTime.now());
+        importRun.setStatus("RUNNING");
+        importRunRepository.save(importRun);
 
         try {
             ClassPathResource resource = new ClassPathResource("data/sample-service-requests.csv");
 
             try (
                     Reader reader = new InputStreamReader(resource.getInputStream(), StandardCharsets.UTF_8);
-                    CSVParser csvParser = CSVFormat.DEFAULT.withFirstRecordAsHeader().parse(reader)
+                    CSVParser csvParser = CSVFormat.DEFAULT.builder()
+                            .setHeader()
+                            .setSkipHeaderRecord(true)
+                            .build()
+                            .parse(reader)
             ) {
                 for (CSVRecord record : csvParser) {
                     processed++;
@@ -66,11 +80,26 @@ public class CsvImportService {
                 }
             }
 
+            importRun.setFinishedAt(LocalDateTime.now());
+            importRun.setRecordsProcessed(processed);
+            importRun.setRecordsInserted(inserted);
+            importRun.setRecordsSkipped(skipped);
+            importRun.setStatus("SUCCESS");
+            importRunRepository.save(importRun);
+
             return "Import complete. Processed: " + processed +
                     ", Inserted: " + inserted +
                     ", Skipped: " + skipped;
 
         } catch (Exception e) {
+            importRun.setFinishedAt(LocalDateTime.now());
+            importRun.setRecordsProcessed(processed);
+            importRun.setRecordsInserted(inserted);
+            importRun.setRecordsSkipped(skipped);
+            importRun.setStatus("FAILED");
+            importRun.setErrorMessage(e.getMessage());
+            importRunRepository.save(importRun);
+
             throw new RuntimeException("Failed to import sample CSV data: " + e.getMessage(), e);
         }
     }
