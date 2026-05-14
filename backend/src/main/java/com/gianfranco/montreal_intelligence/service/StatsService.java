@@ -26,4 +26,14 @@ public class StatsService {
     public List<StatsSummary> getRequestsByStatus() {
         return serviceRequestRepository.countByStatus();
     }
+
+    public List<StatsSummary> getMonthlyTrends() {
+        return serviceRequestRepository.countMonthlyTrendsRaw()
+                .stream()
+                .map(row -> new StatsSummary(
+                        (String) row[0],
+                        ((Number) row[1]).longValue()
+                ))
+                .toList();
+    }
 }

@@ -50,4 +50,13 @@ public interface ServiceRequestRepository extends JpaRepository<ServiceRequest, 
         ORDER BY COUNT(r) DESC
     """)
     List<StatsSummary> countByStatus();
+
+    @Query(value = """
+        SELECT TO_CHAR(created_date, 'YYYY-MM') AS month_label, COUNT(*) AS request_count
+        FROM service_requests
+        WHERE created_date IS NOT NULL
+        GROUP BY TO_CHAR(created_date, 'YYYY-MM')
+        ORDER BY month_label
+    """, nativeQuery = true)
+    List<Object[]> countMonthlyTrendsRaw();
 }

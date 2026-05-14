@@ -32,4 +32,9 @@ public class StatsController {
     public List<StatsSummary> getRequestsByStatus() {
         return statsService.getRequestsByStatus();
     }
+
+    @GetMapping("/monthly-trends")
+    public List<StatsSummary> getMonthlyTrends() {
+        return statsService.getMonthlyTrends();
+    }
 }
